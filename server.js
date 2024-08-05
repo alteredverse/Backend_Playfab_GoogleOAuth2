@@ -28,7 +28,9 @@ const GOOGLE_OAUTH_SCOPES = [
 ];
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const GOOGLE_ACCESS_TOKEN_URL = process.env.GOOGLE_ACCESS_TOKEN_URL;
-	
+
+const PLAYFAB_APP_TITLE_ID = process.env.PLAYFAB_APP_TITLE_ID;
+
 const PORT = process.env.PORT || 3000;
 
 //====================================================//
@@ -123,7 +125,7 @@ app.get("/google/callback", async (req, res) => {
     `${process.env.GOOGLE_TOKEN_INFO_URL}?id_token=${id_token}`
   );
 
-    PlayFab.settings.titleId = "C0466";
+    PlayFab.settings.titleId = PLAYFAB_APP_TITLE_ID;
     var loginRequest = {
         TitleId: PlayFab.settings.titleId,
         CreateAccount: true,
