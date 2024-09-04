@@ -17,8 +17,9 @@ const GOOGLE_OAUTH_URL = process.env.GOOGLE_OAUTH_URL;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 // TODO: replace the callback URLs from your Google Cloud Console App Settings
-const GOOGLE_CALLBACK_URL = "https%3A//e85d-132-147-98-233.ngrok-free.app/google/callback";
-const GOOGLE_CALLBACK_URL_NOT_SAFE = "https://e85d-132-147-98-233.ngrok-free.app/google/callback";
+const GOOGLE_CALLBACK_URL = "http%3A//dev.alteredverse.sg:5000/google/callback";
+const GOOGLE_CALLBACK_URL_NOT_SAFE = "http://dev.alteredverse.sg:5000/google/callback";
+const PLAYFAB_LOGIN_STATUS_URL = "http://dev.alteredverse.sg:5000/playfab/login/status";
 // const GOOGLE_OAUTH_SCOPES = [
 // 	"https%3A//www.googleapis.com/auth/userinfo.email",
 // 	"https%3A//www.googleapis.com/auth/userinfo.profile"
@@ -39,6 +40,7 @@ const PORT = process.env.PORT || 3000;
 //var PlayFab = require("./node_modules/playfab-sdk/Scripts/PlayFab/PlayFab");
 //var PlayFabClient = require("./node_modules/playfab-sdk/Scripts/PlayFab/PlayFabClient");
 var IdTokenMap = new Map();
+var playFabResMsg = "Playfab Login Complete";
 
 //====================================================//
 //                       HOME                         //
@@ -89,15 +91,22 @@ app.get("/login/customid", async (req, res) => {
 //                  LOGIN with Google                 //
 //====================================================//
 function LoginWithGoogleCallback(error, result) {
-  console.log(`\nLoginWithGoogleCallback::result:${ JSON.stringify(result) }`);
+  //console.log(`\nLoginWithGoogleCallback::result:${ JSON.stringify(result) }`);
     if (result !== null) {
         console.log("\nCongratulations, you have successfully logged-in account to Playfab!");
+		playFabResMsg = "\nCongratulations, you have successfully logged-in account to Playfab!";
     } else if (error !== null) {
         console.log("\nSomething went wrong with your first API call.");
         console.log("Here's some debug information:");
         console.log(CompilePlayfabErrorReport(error));
+		playFabResMsg = "\nSomething went wrong with your first API call.";
     }
 }
+
+app.get("/playfab/login/status", async (req, res) => {
+	console.log(`handled redirection for playfab login with msg:${playFabResMsg}`);
+	res.send(playFabResMsg);
+});
 
 app.get("/google/callback", async (req, res) => {
   const { code } = req.query;
@@ -131,8 +140,10 @@ app.get("/google/callback", async (req, res) => {
         CreateAccount: true,
         AccessToken: access_token
     };
-    PlayFabClient.LoginWithGoogleAccount( loginRequest, LoginWithGoogleCallback);
-  res.send(`Google Login Callback`);
+    PlayFabClient.LoginWithGoogleAccount( loginRequest, LoginWithGoogleCallback );
+  //res.send(`Google Login Callback`);
+  //res.send(msg);
+  res.redirect(PLAYFAB_LOGIN_STATUS_URL);
 });
 
 app.get("/login/google", async (req, res) => {
